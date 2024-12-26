@@ -43,7 +43,17 @@ from random import choice
                 Terminal EXIBE os alunos matriculados nessa turma
         Filtra as disciplinas alocadas em dada turma
                 Terminal SOLICITA código da turma ou pergunta se usuário quer a lista das turmas. Usuário INSERE código da turma
-                Terminal EXIBE as disciplinas dessa turma'''
+                Terminal EXIBE as disciplinas dessa turma
+                
+        Verificar quais disciplinas ainda não possuem professor(?)
+        Verificar progresso de carga horária dos professores(?)
+        Verificar carga horária disponível para cada turma(?)
+        Verificar quantidade de vagas de alunos disponíveis para cada turma(?)
+        
+        
+        
+        
+        '''
                 
 fake = Faker('pt_BR')
 
@@ -55,6 +65,9 @@ fake.address()
 fake.phone_number()
 fake.email()
 choice([15, 30, 45, 60, 75, 90, 105, 120])
+
+choice(["20", "21", "22", "23", "24", "25"]) #Ano da Turma
+choice(["1", "2"]) #Semestre
 
 f"{choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ')}{fake.random_number(digits=4, fix_len=True)}"#Código Curso
 f"{choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ')}{fake.random_number(digits=5, fix_len=True)}"#Código Disciplina
