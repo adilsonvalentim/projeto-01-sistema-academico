@@ -85,7 +85,7 @@ def print_sucess():
 def print_courses():
     """print_courses: Exibe todos os Cursos e seus Códigos.
 
-    Tem o objetivo de mostrar todos os Cursos e seus Códigos, quando for conveniente.
+    Tem o objetivo de mostrar todos os Cursos e seus Códigos em ordem alfabética, quando for conveniente.
     """
-    for course in courses:
-        print (' - '.join([f'{key}: {value}' for key, value in course.items()]))
+    for course in sorted(courses, key=lambda x: x['Nome']):
+        print (' - '.join([f'{key}: {course[key]}' for key in course]))
