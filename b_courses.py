@@ -79,8 +79,7 @@ def print_sucess():
 
     Informa ao usuário que o Curso foi cadastrado com êxito, e também exibe o Código do Curso.
     """
-    print(f'\nCurso cadastrado com sucesso:\n
-        {' - '.join([f'{key}: {value}' for key, value in courses[-1].items()])}')
+    print(f'\nCurso cadastrado com sucesso:\n{' - '.join([f'{key}: {value}' for key, value in courses[-1].items()])}')
 
 def print_courses():
     """print_courses: Exibe todos os Cursos e seus Códigos.

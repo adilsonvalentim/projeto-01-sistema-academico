@@ -108,3 +108,6 @@ fake.random_element(["Matemática Básica", "Estatística", "Cálculo Diferencia
 "Paisagismo", "Fotografia e Comunicação", "Teorias da Comunicação", 
 "Produção de Conteúdo Audiovisual", "Educação Física e Esportes", "Biologia Molecular", 
 "Imunologia", "Geopolítica", "Cartografia", "Astronomia", "Robótica"])
+
+if __name__ == '__main__':
+        main()
