@@ -1,5 +1,5 @@
 from b_courses import courses, print_courses
-from g_util import code_existance_verifier
+from g_util import code_existance_verifier, OperationCancelled
 
 cohorts = []
 
@@ -100,4 +100,17 @@ def create_cohort_dict(cohort_name, cohort_code):
     Returns:
         Dicionário da Turma dict: Dicionário original da Turma, composto por Nome e Código únicos.
     """
-    return {'Nome': cohort_name, 'Código': cohort_code}
+    return {'Nome': cohort_name, 'Código': cohort_code, 'Disciplinas': [], 'Alunos': []}
+
+def print_cohorts(keys_to_display):
+    """print_cohorts: Exibe todas as Turmas e os itens selecionados via argumento.
+
+    Tem o objetivo de mostrar todos as Turmas e seus itens selecionados
+    via argumento, em ordem alfabética, quando for chamada.
+
+    Args:
+        keys_to_display tuple: Tupla com as chaves, cujos items devem ser impressos.
+    """
+    print('\nEstas são as Turmas cadastradas:')
+    for cohort in sorted(cohorts, key=lambda x: x['Nome']):
+        print (' - '.join([f'{key}: {cohort[key]}' for key in keys_to_display if key in cohort]))

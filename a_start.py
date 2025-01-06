@@ -1,11 +1,86 @@
-'''import util
-util.minha_funcao()'''
-
-'''from util import minha_funcao
-minha_funcao'''
-
 from faker import Faker
 from random import choice
+from b_courses import registering_courses, courses
+from c_cohorts import registering_cohorts, cohorts
+from d_disciplines import registering_disciplines, disciplines_on_teacher, disciplines
+from e_teachers import registering_teachers, teachers
+from f_students import registering_students
+from g_util import OperationCancelled
+
+def title():
+        print('\n* * * * * SISTEMA ACADÊMICO * * * * *')
+        
+def ask_username():
+        username = input('\nPor favor usuário, insira o seu nome: ')
+        return username
+
+def introduction(username):
+        print(f'\nOlá {username}, este programa é um Sistema Acadêmico. Nele, você poderá cadastrar Cursos, Turmas, Disciplinas,\n'
+                'Professores e Alunos. Também poderá alocar Disciplinas aos Professores, Disciplinas às Turmas e matricular Alunos em Turmas.\n'
+                'Por fim, poderá consultar Professores por Disciplinas, Disciplinas por Professores, Alunos por Turmas, Disciplinas por Turmas.\n'
+                'Para realizar Cadastros, Alocações, Matrículas e Consultas, você deverá inserir o número correspondente no MENU PRINCIPAL.')
+        
+def main_menu():
+        print('\n* * * MENU PRINCIPAL * * *\n'
+                '1 - Cadastrar Curso\n'#ok
+                '2 - Cadastrar Turma\n'#ok
+                '3 - Cadastrar Disciplina\n'#ok
+                '4 - Cadastrar Professores\n'#ok
+                '5 - Cadastrar Alunos\n'#ok
+                '6 - Alocar Disciplinas a Professor\n'#Construido em Disciplinas
+                '7 - Alocar Disciplinas a Turma\n' #Construido em Disciplinas
+                '8 - Matricular Aluno em Turma\n'
+                '9 - Consultar Professor por Disciplina\n'
+                '10 - Consultar Disciplinas por Professor\n'
+                '11 - Consultar Alunos por Turma\n'
+                '12 - Consultar Disciplinas por Turma\n'
+                'sair - Encerra o Programa')
+
+def choose_function():
+        option = 0
+        option = input('\nPor favor, insira o número da função que deseja executar: ')
+        return option
+
+def option_executor(option):
+        if option == '1':
+                return registering_courses()
+        if option == '2':
+                if courses:
+                        return registering_cohorts()
+                print('\nErro! Cadastre algum Curso antes de cadastrar alguma Turma.')
+        if option == '3':
+                return registering_disciplines()
+        if option == '4':
+                return registering_teachers()
+        if option == '5':
+                return registering_students()
+        if option == '6':
+                if any('Professor' not in discipline for discipline in disciplines):
+                        if teachers:
+                                return disciplines_on_teacher()
+                        print('\nErro! Cadastre algum Professor antes de alocar Disciplinas a Professor.')
+                print('\nErro! Não há Disciplinas disponíveis para alocação de Professor.'
+                        '\nCadastre uma nova Disciplina, e tente novamente.')
+        if option == '7':
+                if any('Turma' not in discipline for discipline in disciplines):
+                        if cohorts:
+                                return disciplines_on_teacher()
+                        print('\nErro! Cadastre alguma Turma antes de alocar Disciplinas a Turma.')
+                print('\nErro! Não há Disciplinas disponíveis para alocação em Turma.'
+                        '\nCadastre uma nova Disciplina, e tente novamente.')
+                
+        
+running = True
+while running:
+        try:
+                main_menu()
+                option = choose_function()
+                option_executor(option)
+                
+        except OperationCancelled:
+                print('\nVoltando ao MENU PRINCIPAL.')
+        
+
 '''Estrutura de dados:
         Cursos: Nome, Código X####
                 Não depende de nada. Usuário INSERE nome. Sistema GERA código. Terminal EXIBE associação
@@ -24,12 +99,12 @@ from random import choice
         Alocar professores em Disciplinas: (Máx 600 Horas (15Semanas*40H))
                 Terminal EXIBE professores. Usuário SELECIONA professor. Terminal EXIBE DISCIPLINAS. Usuário SELECIONA disciplina.
                 Terminal EXIBE associação e o progresso de Carga Horária Total do professor.
-        Alocar alunos em Turma: (Máx 60 Alunos / Turma)
-                Terminal EXIBE disciplinas. Usuário SELECIONA disciplina. Terminal EXIBE alunos. Usuário SELECIONA alunos.
-                Terminal EXIBE associação 
         Alocar Disciplinas em Turmas: (Màx 375 Horas)
                 Terminal EXIBE turmas. Usuário SELECIONA turma. Terminal EXIBE disciplinas. Usuário SELECIONA disciplinas.
                 Terminal EXIBE associação
+        Alocar alunos em Turma: (Máx 60 Alunos / Turma)
+                Terminal EXIBE disciplinas. Usuário SELECIONA disciplina. Terminal EXIBE alunos. Usuário SELECIONA alunos.
+                Terminal EXIBE associação 
         
         
         Filtra as disciplinas de um dado professor

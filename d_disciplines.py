@@ -1,6 +1,9 @@
 from random import choice
 from faker import Faker
 fake = Faker('pt_BR')
+from e_teachers import teachers, print_teachers
+from g_util import OperationCancelled, id_verifier_index, teacher_available_workload, cohort_available_workload, code_verifier_index
+from c_cohorts import print_cohorts, cohorts
 
 disciplines = []
 
@@ -131,3 +134,166 @@ def create_disc_dict(name, code, workload):
         dicionário da disciplina dict: Dicionário original da Disciplina, contendo Nome, Código e Carga Horária
     """
     return {'Nome': name, 'Código': code, 'Carga Horária': workload}
+
+def print_disciplines_available_to_teacher(keys_to_display):
+    """print_disciplines_available_to_teacher: Exibe todas as Disciplinas disponíveis para Professores.
+
+    Tem o objetivo de mostrar todas as Disciplinas disponíveis para Professores e seus itens selecionados
+    via argumento, em ordem alfabética, quando for chamada.
+
+    Args:
+        keys_to_display tuple: Tupla com as chaves, cujos items devem ser impressos.
+    """
+    print('\nEstas são as Disciplinas cadastradas disponíveis:')
+    for discipline in sorted(disciplines, key=lambda x: x['Nome']):
+        if 'Professor' not in discipline:
+            print (' - '.join([f'{key}: {discipline[key]}' for key in keys_to_display if key in discipline]))
+
+def print_disciplines_available_to_cohort(keys_to_display):
+    """print_disciplines_available_to_cohort: Exibe todas as Disciplinas disponíveis para Turmas.
+
+    Tem o objetivo de mostrar todas as Disciplinas disponíveis para Turmas e seus itens selecionados
+    via argumento, em ordem alfabética, quando for chamada.
+
+    Args:
+        keys_to_display tuple: Tupla com as chaves, cujos items devem ser impressos.
+    """
+    print('\nEstas são as Disciplinas cadastradas disponíveis:')
+    for discipline in sorted(disciplines, key=lambda x: x['Nome']):
+        if 'Turma' not in discipline:
+            print (' - '.join([f'{key}: {discipline[key]}' for key in keys_to_display if key in discipline]))
+
+def print_disciplines(keys_to_display):
+    """print_disciplines: Exibe todas as Disciplinas e os itens selecionados via argumento.
+
+    Tem o objetivo de mostrar todas as Disciplinas e seus itens selecionados
+    via argumento, em ordem alfabética, quando for chamada.
+
+    Args:
+        keys_to_display tuple: Tupla com as chaves, cujos items devem ser impressos.
+    """
+    print('\nEstas são as Disciplinas cadastradas:')
+    for discipline in sorted(disciplines, key=lambda x: x['Nome']):
+        print (' - '.join([f'{key}: {discipline[key]}' for key in keys_to_display if key in discipline]))
+
+def disciplines_on_teacher():
+    """disciplines_on_teacher: Alocar Disciplinas a Professores.
+
+    Aloca as Disciplinas ao professor e o Profesor às Disciplinas.
+
+    Raises:
+        ValueError: Garantidores de Fluxo
+        OperationCancelled: Retorno ao MENU PRINCIPAL
+    """
+    keys_to_display = ('Nome', 'Matrícula')
+    print('\nEstes são os Professores cadastrados:')
+    print_teachers(keys_to_display)
+    while True:
+        try:
+            id_selected = input('\nInsira a Matrícula do Professor que deseja alocar Disciplinas: ')
+            t_index = id_verifier_index(id_selected, teachers)
+            print(f'\nProfessor(a) {teachers[t_index]['Nome']} selecionado(a).')
+            break
+        except ValueError:
+            print('\nErro! Matrícula inválida. Verifique e tente novamente.')
+    keys_to_display = ('Nome', 'Código', 'Carga Horária')
+    print_disciplines_available_to_teacher(keys_to_display)
+    while True:
+        try:
+            available_workload = teacher_available_workload(teachers, t_index)
+            disc_selected = input(f'\nO Professor(a) {teachers[t_index]['Nome']} possui {available_workload} horas disponíveis.\n'
+                                'Insira o Código da Disciplina a ser alocada, ou "menu" para voltar ao MENU PRINCIPAL: ')
+            if disc_selected == 'menu':
+                raise OperationCancelled
+            d_index = code_verifier_index(disc_selected, disciplines)
+            if disciplines[d_index]['Carga Horária'] > available_workload:
+                while True:
+                    decision = input('\nProfessor não possui Carga Horária disponível para essa Disciplina\n'
+                                'Insira "s" para selecionar outra Disciplina ou "menu" para voltar ao MENU PRINCIPAL: ').lower()
+                    if decision == 's':
+                        raise ValueError(f'{print_disciplines_available_to_teacher(keys_to_display)}')
+                    if decision == 'menu':
+                        raise OperationCancelled
+                    else:
+                        print('\nInserção inválida! Insira "s" ou "menu".')
+            else:
+                teachers[t_index]['Disciplinas'].append(disciplines[d_index])
+                disciplines[d_index].setdefault('Professor', []).append({'Nome': teachers[t_index]['Nome'], 'Matrícula': teachers[t_index]['Matrícula']})
+                print('\nDisciplina alocada com sucesso ao Professor.')
+                if any('Professor' not in discipline for discipline in disciplines):
+                    while True:
+                        keep_adding = input('\nInsira "s" para alocar outra Disciplina, ou "menu" para voltar ao MENU PRINCIPAL: ').lower()
+                        if keep_adding == 's':
+                            raise ValueError(f'{print_disciplines_available_to_teacher(keys_to_display)}')
+                        if keep_adding == 'menu':
+                            raise OperationCancelled
+                        else:
+                            print('\nInserção inválida! Insira "s" ou "menu"')
+                else:
+                    print('\nNão existem mais Disciplinas disponíveis para serem alocadas. Voltando ao MENU PRINCIPAL.')
+                    raise OperationCancelled
+        except ValueError as e:
+            print(f'{e}')
+            
+def disciplines_on_cohorts():
+    """disciplines_on_cohorts: Alocar Disciplinas a Turmas.
+
+    Aloca as Disciplinas à Turma.
+
+    Raises:
+        ValueError: Garantidores de Fluxo
+        OperationCancelled: Retorno ao MENU PRINCIPAL
+    """
+    keys_to_display = ('Nome', 'Código')
+    print('\nEstes são as Turmas cadastradas:')
+    print_cohorts(keys_to_display)
+    while True:
+        try:
+            code_selected = input('\nInsira o Código da Turma que deseja alocar Disciplinas: ')
+            c_index = code_verifier_index(code_selected, cohorts)
+            print(f'\nTurma {cohorts[c_index]['Nome']} selecionada.') #Turma selecionada
+            break
+        except ValueError as e:
+            print(f'\n{e}')
+    keys_to_display = ('Nome', 'Código', 'Carga Horária')
+    print_disciplines_available_to_cohort(keys_to_display)
+    while True:
+        try:
+            available_workload = cohort_available_workload(cohorts, c_index)
+            disc_selected = input(f'\nA Turma {cohorts[c_index]['Nome']} possui {available_workload} horas disponíveis.\n'
+                                'Insira o Código da Disciplina a ser alocada, ou "menu" para voltar ao MENU PRINCIPAL: ')
+            if disc_selected == 'menu':
+                raise OperationCancelled
+            d_index = code_verifier_index(disc_selected, disciplines)
+            if disciplines[d_index]['Carga Horária'] > available_workload:
+                while True:
+                    decision = input('\nTurma não possui Carga Horária disponível para essa Disciplina\n'
+                                'Insira "s" para selecionar outra Disciplina ou "menu" para voltar ao MENU PRINCIPAL: ').lower()
+                    if decision == 's':
+                        raise ValueError(f'{print_disciplines_available_to_cohort(keys_to_display)}')
+                    if decision == 'menu':
+                        raise OperationCancelled
+                    else:
+                        print('\nInserção inválida! Insira "s" ou "menu".')
+            else:
+                cohorts[c_index]['Disciplinas'].append(disciplines[d_index])
+                disciplines[d_index].setdefault('Turma', []).append({'Nome': cohorts[c_index]['Nome'], 'Matrícula': cohorts[c_index]['Matrícula']})
+                print('\nDisciplina alocada com sucesso na Turma.')
+                if any('Turma' not in discipline for discipline in disciplines):
+                    while True:
+                        keep_adding = input('\nInsira "s" para alocar outra Disciplina, ou "menu" para voltar ao MENU PRINCIPAL: ').lower()
+                        if keep_adding == 's':
+                            raise ValueError(f'{print_disciplines_available_to_cohort(keys_to_display)}')
+                        if keep_adding == 'menu':
+                            raise OperationCancelled
+                        else:
+                            print('\nInserção inválida! Insira "s" ou "menu"')
+                else:
+                    print('\nNão existem mais Disciplinas disponíveis para serem alocadas. Voltando ao MENU PRINCIPAL.')
+                    raise OperationCancelled
+        except ValueError as e:
+            print(f'{e}')
+
+'''Alocar Disciplinas em Turmas: (Màx 375 Horas)
+                Terminal EXIBE turmas. Usuário SELECIONA turma. Terminal EXIBE disciplinas. Usuário SELECIONA disciplinas.
+                Terminal EXIBE associação'''

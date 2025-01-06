@@ -1,6 +1,6 @@
 from random import choice
 from faker import Faker
-from g_util import calc_age, check_phone, check_email
+from g_util import OperationCancelled, calc_age, check_phone, check_email
 fake = Faker('pt_BR')
 
 students = []

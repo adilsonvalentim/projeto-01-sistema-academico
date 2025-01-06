@@ -1,6 +1,7 @@
 from random import choice
 from faker import Faker
 fake = Faker('pt_BR')
+from g_util import OperationCancelled
 
 courses = []
 
@@ -84,7 +85,7 @@ def print_sucess():
 def print_courses():
     """print_courses: Exibe todos os Cursos e seus Códigos.
 
-    Tem o objetivo de mostrar todos os Cursos e seus Códigos em ordem alfabética, quando for conveniente.
+    Tem o objetivo de mostrar todos os Cursos e seus Códigos em ordem alfabética, quando for chamada.
     """
     for course in sorted(courses, key=lambda x: x['Nome']):
         print (' - '.join([f'{key}: {course[key]}' for key in course]))

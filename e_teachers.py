@@ -1,6 +1,6 @@
 from random import choice
 from faker import Faker
-from g_util import calc_age, check_phone, check_email
+from g_util import OperationCancelled, calc_age, check_phone, check_email
 fake = Faker('pt_BR')
 
 teachers = []
@@ -137,4 +137,12 @@ def create_teacher_dict(name, id, birthday, gender, adress, phone, email):
     Returns:
         dicionário do professor dict: Dicionário original do Professor, contendo Nome, Matrícula, Data de Nascimento, Sexo, Endereço, Telefone e E-mail.
     """
-    return {'Nome': name, 'Matrícula': id, 'Data de Nascimento': birthday, 'Sexo': gender, 'Endereço': adress, 'Telefone': phone, 'E-mail': email}
+    return {'Nome': name, 'Matrícula': id, 'Disciplinas': [], 'Data de Nascimento': birthday, 'Sexo': gender, 'Endereço': adress, 'Telefone': phone, 'E-mail': email}
+
+def print_teachers(keys_to_display):
+    """print_teachers: Exibe todos os Professores, suas Matrículas e suas Horas-Aula.
+
+    Tem o objetivo de mostrar todos os Professores, suas Matrículas e Suas Horas-Aula em ordem alfabética, quando for chamada.
+    """
+    for teacher in sorted(teachers, key=lambda x: x['Nome']):
+        print (' - '.join([f'{key}: {teacher[key]}' for key in keys_to_display if key in teacher]))

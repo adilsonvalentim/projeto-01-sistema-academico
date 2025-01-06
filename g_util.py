@@ -1,11 +1,40 @@
 from re import match
 from datetime import datetime
 
+class OperationCancelled(Exception):
+    pass
+
 def code_existance_verifier(user_code, codes_list):
     for dictionary in codes_list:
         if user_code in dictionary.values():
             return True, dictionary['Nome']
     return False, None
+
+def code_verifier_index(user_code, codes_list):
+    for i, dictionary in enumerate(codes_list):
+        if user_code in dictionary.values():
+            return i
+    raise ValueError('\nErro! Código inexistente. Verifique e tente novamente.')
+
+def id_verifier_index(user_id, id_list):
+    for i, dictionary in enumerate(id_list):
+        if user_id in dictionary.values():
+            return i
+    raise ValueError
+
+def teacher_available_workload(teachers, index):
+    teacher_workload = 0
+    for value in teachers[index]['Disciplinas']:
+        teacher_workload += value.get('Carga Horária', 0)
+    available_workload = 600 - teacher_workload
+    return available_workload
+
+def cohort_available_workload(cohorts, index):
+    cohort_workload = 0
+    for value in cohorts[index]['Disciplinas']:
+        cohort_workload += value.get('Carga Horária', 0)
+    available_workload = 375 - cohort_workload
+    return available_workload
 
 def calc_age(birthday):
     try:
