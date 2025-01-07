@@ -1,6 +1,7 @@
 from random import choice
 from faker import Faker
-from g_util import OperationCancelled, calc_age, check_phone, check_email
+from g_util import OperationCancelled, calc_age, disc_name_using_code, check_phone, teacher_of_disc_using_disc_code, check_email, exists_disc_with_this_code, disc_have_teacher
+from d_disciplines import print_disciplines, disciplines
 fake = Faker('pt_BR')
 
 teachers = []
@@ -140,9 +141,38 @@ def create_teacher_dict(name, id, birthday, gender, adress, phone, email):
     return {'Nome': name, 'Matrícula': id, 'Disciplinas': [], 'Data de Nascimento': birthday, 'Sexo': gender, 'Endereço': adress, 'Telefone': phone, 'E-mail': email}
 
 def print_teachers(keys_to_display):
-    """print_teachers: Exibe todos os Professores, suas Matrículas e suas Horas-Aula.
+    """print_teachers: Exibe todos os Professores e seus items selecionados via argumento.
+
+    Mostrar todos os Professores em ordem alfabética e seus items selecionados via argumento.
+    """
+    print('\nEstes são os Professores cadastrados:')
+    for teacher in sorted(teachers, key=lambda x: x['Nome']):
+        print (' - '.join([f'{key}: {teacher[key]}' for key in keys_to_display if key in teacher]))
+
+def print_teachers_with_workload(keys_to_display):
+    """print_teachers_with_workload: Exibe todos os Professores, suas Matrículas e suas Horas-Aula.
 
     Tem o objetivo de mostrar todos os Professores, suas Matrículas e Suas Horas-Aula em ordem alfabética, quando for chamada.
     """
     for teacher in sorted(teachers, key=lambda x: x['Nome']):
-        print (' - '.join([f'{key}: {teacher[key]}' for key in keys_to_display if key in teacher]))
+        print (' - '.join([f'{key}: {teacher[key]}' for key in keys_to_display if key in teacher]) + f' - Carga Horária disponível: {600 - (sum(disc["Carga Horária"] for disc in teacher["Disciplinas"]))}') 
+
+def consult_teacher_of_disc():
+    keys_to_display = ('Nome', 'Código')
+    print_disciplines(keys_to_display) #Mostrará todas as Disciplinas e seus códigos
+    completed = False
+    while not completed:
+        user_disc_code = input('\nInsira o Código da Disciplina para consultar o nome do Professor dela: ')
+        if exists_disc_with_this_code(user_disc_code, disciplines):
+            if disc_have_teacher(user_disc_code, disciplines):
+                print(f'\nO Professor de {disc_name_using_code(user_disc_code, disciplines)} é o {teacher_of_disc_using_disc_code(user_disc_code, disciplines)}.')
+            else:
+                print(f'\n{disc_name_using_code(user_disc_code, disciplines)} ainda não tem Professor alocado.')
+            completed = True
+        else:
+            print('\nNão existe Disciplina com o Código inserido. Verifique e tente novamente.')
+
+def print_discs_of_teacher_using_id(teacher_id, teachers_list):
+    discs = next((teacher['Disciplinas'] for teacher in teachers_list if teacher['Matrícula'] == teacher_id), None)
+    for disc in sorted(discs, key=lambda x: x['Nome']):
+        print (f'{disc["Nome"]}')

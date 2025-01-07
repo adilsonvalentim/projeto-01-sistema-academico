@@ -13,41 +13,42 @@ def registering_courses():
     """
     name = rec_course_name()
     code = create_course_code()
-    courses.append() = create_course_dict(name, code)
+    courses.append(create_course_dict(name, code))
     print_sucess()
     
 def rec_course_name():
-    """rec_course_name: Recebe o Nome do Curso pelo usuário.
+    """rec_course_name: Solicita o Nome do Curso.
 
-    Recebe o Nome do Curso pelo usuário, chama uma def para verificar se é um nome único
-    Caso seja repetido, comunica o usuário e repete a solicitação.
+    Solicita o Nome do Curso.
 
     Returns:
-        name str: Nome do Curso, caso não seja repetido
-        rec_course_name() def: Reinicia a Função, caso o usuário repita o Nome do Curso.
+        name str: Nome do Curso (único)
     """
-    name = input('\nInsira o Nome do Curso que deseja cadastrar: ').upper()
-    repeated_name = already_exists_tester(name)
-    if repeated_name:
-        print(f'\nJá existe um Curso cadastrado com esse nome: {name}\nTente outro nome para realizar o cadastro.')
-        return rec_course_name()
-    return name
+    while True:
+        name = input('\nInsira o Nome do Curso que deseja cadastrar: ').upper()
+        repeated_name = already_exists_tester(name)
+        if repeated_name:
+            print(f'\nJá existe um Curso cadastrado com o nome {name}.'
+                    '\nTente outro nome para realizar o cadastro.')
+        else:
+            return name
 
 def already_exists_tester(name):
-    """already_exists_tester: Testa se já existe um curso cadastrado com o nome que o usuário inseriu
+    """already_exists_tester: Testa se Nome é repetido.
 
-    Verifica se o nome inserido pelo usuário para o curso que quer cadastrar já não existe
+    Testa se o Nome é repetido.
 
     Args:
         name str: Nome do Curso inserido pelo usuário.
 
     Returns:
-        True ou False - bool: Retorna True se nome for repetido, ou False se não for.
+        True ou False - bool: True se Nome repetido, senão False.
     """
     for dictionary in courses:
         if name in dictionary.values():
             return True
-    return False
+        else:
+            return False
 
 def create_course_code():
     """create_disc_code: Criador do Código único de Cursos

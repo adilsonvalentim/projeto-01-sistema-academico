@@ -4,6 +4,73 @@ from datetime import datetime
 class OperationCancelled(Exception):
     pass
 
+def exists_disc_with_this_code(user_code, codes_list):
+    if any(discipline['Código'] == user_code for discipline in codes_list):
+        return True
+    else:
+        return False
+    
+def exists_cohort_with_this_code(user_code, codes_list):
+    if any(cohort['Código'] == user_code for cohort in codes_list):
+        return True
+    else:
+        return False
+    
+def exists_teacher_with_this_id(user_code, codes_list):
+    if any(teacher['Matrícula'] == user_code for teacher in codes_list):
+        return True
+    else:
+        return False
+
+def disc_have_teacher(disc_code, disc_list):
+    for disc in disc_list:
+        if disc['Código'] == disc_code:
+            if 'Professor' in disc:
+                return True
+            else:
+                return False
+            
+def teacher_have_disc(teacher_id, teachers_list):
+    for teacher in teachers_list:
+        if teacher['Matrícula'] == teacher_id:
+            if teacher['Disciplines']:
+                return True
+            else:
+                return False
+
+def cohort_have_disc(cohort_code, cohorts_list):
+    for cohort in cohorts_list:
+        if cohort['Código'] == cohort_code:
+            if cohort['Disciplines']:
+                return True
+            else:
+                return False
+            
+def cohort_have_students(cohort_code, cohorts_list):
+    for cohort in cohorts_list:
+        if cohort['Código'] == cohort_code:
+            if cohort['Alunos']:
+                return True
+            else:
+                return False
+            
+def teacher_of_disc_using_disc_code(disc_code, disc_list):
+    for disc in disc_list:
+        if disc['Código'] == disc_code:
+                return disc['Professor']['Nome']
+
+def disc_name_using_code(disc_code, disc_list):
+    name = next((disc['Nome'] for disc in disc_list if disc['Código'] == disc_code), None)
+    return name
+
+def teacher_name_using_id(teacher_id, teachers_list):
+    name = next((teacher['Nome'] for teacher in teachers_list if teacher['Matrícula'] == teacher_id), None)
+    return name
+
+def cohort_name_using_code(cohort_code, cohorts_list):
+    name = next((cohort['Nome'] for cohort in cohorts_list if cohort['Código'] == cohort_code), None)
+    return name
+    
 def code_existance_verifier(user_code, codes_list):
     for dictionary in codes_list:
         if user_code in dictionary.values():

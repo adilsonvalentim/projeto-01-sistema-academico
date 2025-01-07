@@ -1,9 +1,9 @@
 from random import choice
 from faker import Faker
 fake = Faker('pt_BR')
-from e_teachers import teachers, print_teachers
-from g_util import OperationCancelled, id_verifier_index, teacher_available_workload, cohort_available_workload, code_verifier_index
-from c_cohorts import print_cohorts, cohorts
+from e_teachers import teachers, print_teachers_with_workload, print_teachers, print_discs_of_teacher_using_id
+from g_util import OperationCancelled, id_verifier_index, cohort_have_disc, cohort_name_using_code, exists_cohort_with_this_code, teacher_name_using_id, teacher_have_disc, exists_teacher_with_this_id, teacher_available_workload, cohort_available_workload, code_verifier_index
+from c_cohorts import print_cohorts_with_workload, print_cohorts, print_discs_of_cohort_using_code, cohorts
 
 disciplines = []
 
@@ -187,7 +187,7 @@ def disciplines_on_teacher():
     """
     keys_to_display = ('Nome', 'Matrícula')
     print('\nEstes são os Professores cadastrados:')
-    print_teachers(keys_to_display)
+    print_teachers_with_workload(keys_to_display)
     while True:
         try:
             id_selected = input('\nInsira a Matrícula do Professor que deseja alocar Disciplinas: ')
@@ -235,7 +235,7 @@ def disciplines_on_teacher():
         except ValueError as e:
             print(f'{e}')
             
-def disciplines_on_cohorts():
+def disciplines_on_cohort():
     """disciplines_on_cohorts: Alocar Disciplinas a Turmas.
 
     Aloca as Disciplinas à Turma.
@@ -245,8 +245,8 @@ def disciplines_on_cohorts():
         OperationCancelled: Retorno ao MENU PRINCIPAL
     """
     keys_to_display = ('Nome', 'Código')
-    print('\nEstes são as Turmas cadastradas:')
-    print_cohorts(keys_to_display)
+    print('\nEstas são as Turmas cadastradas:')
+    print_cohorts_with_workload(keys_to_display)
     while True:
         try:
             code_selected = input('\nInsira o Código da Turma que deseja alocar Disciplinas: ')
@@ -294,6 +294,34 @@ def disciplines_on_cohorts():
         except ValueError as e:
             print(f'{e}')
 
-'''Alocar Disciplinas em Turmas: (Màx 375 Horas)
-                Terminal EXIBE turmas. Usuário SELECIONA turma. Terminal EXIBE disciplinas. Usuário SELECIONA disciplinas.
-                Terminal EXIBE associação'''
+def consult_discs_of_teacher():
+    keys_to_display = ('Nome', 'Matrícula')
+    print_teachers(keys_to_display) #Mostrará todos os Professores e Suas Matrículas
+    completed = False
+    while not completed:
+        user_teacher_id = input('\nInsira a Matrícula do Professor para consultar as suas Disciplinas: ')
+        if exists_teacher_with_this_id(user_teacher_id, teachers):
+            if teacher_have_disc(user_teacher_id, teachers):
+                print(f'\n{teacher_name_using_id(user_teacher_id, teachers)} é o Professor das seguintes Disciplinas:')
+                print_discs_of_teacher_using_id(user_teacher_id, teachers)
+            else:
+                print(f'\nO Professor {teacher_name_using_id(user_teacher_id, teachers)} não possui Disciplinas alocadas.')
+            completed = True
+        else:
+            print('\nNão existe Professor com a Matrícula Inserida. Verifique e tente novamente.')
+
+def consult_discs_of_cohort():
+    keys_to_display = ('Nome', 'Código')
+    print_cohorts(keys_to_display) #Mostrará todas as Turmas e seus Códigos
+    completed = False
+    while not completed:
+        user_cohort_code = input('\nInsira o Código da Turma para consultar as suas Disciplinas: ')
+        if exists_cohort_with_this_code(user_cohort_code, cohorts):
+            if cohort_have_disc(user_cohort_code, cohorts):
+                print(f'\nA Turma {cohort_name_using_code(user_cohort_code, cohorts)} possui as seguintes Disciplinas:')
+                print_discs_of_cohort_using_code(user_cohort_code, cohorts)
+            else:
+                print(f'\nA Turma {cohort_name_using_code(user_cohort_code, cohorts)} não possui Disciplinas alocadas.')
+            completed = True
+        else:
+            print('\nNão existe Turma com o Código inserido. Verifique e tente novamente.')

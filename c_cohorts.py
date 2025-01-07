@@ -1,5 +1,6 @@
 from b_courses import courses, print_courses
-from g_util import code_existance_verifier, OperationCancelled
+from g_util import code_existance_verifier, code_verifier_index, OperationCancelled
+from f_students import print_students_wo_cohort, students
 
 cohorts = []
 
@@ -103,7 +104,25 @@ def create_cohort_dict(cohort_name, cohort_code):
     return {'Nome': cohort_name, 'Código': cohort_code, 'Disciplinas': [], 'Alunos': []}
 
 def print_cohorts(keys_to_display):
-    """print_cohorts: Exibe todas as Turmas e os itens selecionados via argumento.
+    print('\nEstas são as Turmas cadastradas:')
+    for cohort in sorted(cohorts, key=lambda x: x['Nome']):
+        print (' - '.join([f'{key}: {cohort[key]}' for key in keys_to_display if key in cohort]))
+
+def print_cohorts_with_workload(keys_to_display):
+    """print_cohorts_with_workload: Exibe todas as Turmas e os itens selecionados via argumento.
+
+    Tem o objetivo de mostrar todos as Turmas e seus itens selecionados via argumento,
+    em ordem alfabética, bem como a Carga Horária disponível quando for chamada.
+
+    Args:
+        keys_to_display tuple: Tupla com as chaves, cujos items devem ser impressos.
+    """
+    print('\nEstas são as Turmas cadastradas:')
+    for cohort in sorted(cohorts, key=lambda x: x['Nome']):
+        print (' - '.join([f'{key}: {cohort[key]}' for key in keys_to_display if key in cohort]) + f' - Carga Horária disponível: {375 - (sum(disc["Carga Horária"] for disc in cohort["Disciplinas"]))}')
+
+def print_cohorts_with_vacancies(keys_to_display):
+    """print_cohorts_with_vacancies: Exibe todas as Turmas e os itens selecionados via argumento.
 
     Tem o objetivo de mostrar todos as Turmas e seus itens selecionados
     via argumento, em ordem alfabética, quando for chamada.
@@ -111,6 +130,60 @@ def print_cohorts(keys_to_display):
     Args:
         keys_to_display tuple: Tupla com as chaves, cujos items devem ser impressos.
     """
-    print('\nEstas são as Turmas cadastradas:')
+    print('\nEstas são as Turmas com vagas:')
     for cohort in sorted(cohorts, key=lambda x: x['Nome']):
-        print (' - '.join([f'{key}: {cohort[key]}' for key in keys_to_display if key in cohort]))
+        if (40 - (sum(cohort["Alunos"]))) > 0:
+            print (' - '.join([f'{key}: {cohort[key]}' for key in keys_to_display if key in cohort]) + f' - Vagas Disponíveis: {40 - (sum(cohort["Alunos"]))}')
+
+def students_on_cohort():
+    answer = 0
+    while answer != 'menu':
+        keys_to_display = ('Nome', 'Código')
+        print_cohorts_with_vacancies(keys_to_display) #Mostra Turmas com vagas
+        index, vacancies = get_cohort_with_vacancies() #Recebe Turma selecionada
+        print(f'\nTurma {cohorts[index]["Nome"]} selecionada.')
+        keys_to_display = ('Nome', 'Matrícula')
+        while vacancies > 0 and any('Turma' not in student for student in students):
+            print_students_wo_cohort(keys_to_display)
+            answer = input('Insira o Código do Aluno para matriculá-lo ou "menu" para voltar ao MENU PRINCIPAL: ')
+            if answer == 'menu':
+                break
+            for student in students:
+                if answer in student.values():
+                    student['Turma'] = [{'Nome': cohorts[index]['Nome'], 'Código': cohorts[index]['Código']}]
+                    cohorts[index]['Alunos'].append({'Nome': student['Name'], 'Código': student['Código']})
+                    vacancies -= 1
+                    print('\nAluno matriculado com sucesso!')
+                    if not any('Turma' not in student for student in students): #Sem alunos disponíveis volta pro MENU
+                        print('\nAcabaram os alunos disponíveis para matrícula.')
+                        answer = 'menu'
+                    elif vacancies == 0 and any(len(cohort['Alunos'] < 40 for cohort in cohorts)): #Turma esgotada, mas há Turma(s) disponível(is)
+                        answer = input('\nEssa Turma chegou ao limite de vagas.' #Volta pro MENU ou seleciona outra Turma
+                                        '\nInsira "menu" para voltar ao MENU PRINCIPAL ou outra coisa para selecionar outra Turma: ')
+    print('\nVoltando ao MENU PRINCIPAL.')
+
+def get_cohort_with_vacancies():
+    while True:
+        try:
+            cohort_code = input('\nInsira o Código da Turma que deseja matricular Alunos: ')
+            index = code_verifier_index(cohort_code, cohorts)
+            vacancies = check_available_vacancies(index)
+            return index, vacancies
+        except ValueError as e:
+            print(f'{e}')
+            
+def check_available_vacancies(index):
+    vacancies = (40 - (sum(cohorts[index]["Alunos"])))
+    if vacancies > 0:
+        return vacancies
+    raise ValueError('\nErro! Essa Turma não tem vagas disponíveis.')
+
+def print_students_of_cohort_using_code(cohort_code, cohorts_list):
+    students = next((cohort['Alunos'] for cohort in cohorts_list if cohort['Código'] == cohort_code), None)
+    for student in sorted(students, key=lambda x: x['Nome']):
+        print (f'{student["Nome"]}')
+
+def print_discs_of_cohort_using_code(cohort_code, cohorts_list):
+    discs = next((cohort['Disciplinas'] for cohort in cohorts_list if cohort['Código'] == cohort_code), None)
+    for disc in sorted(discs, key=lambda x: x['Nome']):
+        print (f'{disc["Nome"]}')

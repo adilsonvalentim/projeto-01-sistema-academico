@@ -1,6 +1,7 @@
 from random import choice
 from faker import Faker
-from g_util import OperationCancelled, calc_age, check_phone, check_email
+from g_util import OperationCancelled, calc_age, cohort_name_using_code, check_phone, check_email, exists_cohort_with_this_code, cohort_have_students
+from c_cohorts import print_cohorts, print_students_of_cohort_using_code, cohorts
 fake = Faker('pt_BR')
 
 students = []
@@ -138,3 +139,29 @@ def create_student_dict(name, id, birthday, gender, adress, phone, email):
         dicionário do aluno dict: Dicionário original do Aluno, contendo Nome, Matrícula, Data de Nascimento, Sexo, Endereço, Telefone e E-mail.
     """
     return {'Nome': name, 'Matrícula': id, 'Data de Nascimento': birthday, 'Sexo': gender, 'Endereço': adress, 'Telefone': phone, 'E-mail': email}
+
+def print_students(keys_to_display):
+    for student in sorted(students, key=lambda x: x['Nome']):
+        print (' - '.join([f'{key}: {student[key]}' for key in keys_to_display if key in student]))
+        
+def print_students_wo_cohort(keys_to_display):
+    print('\nEsses são os Estudantes disponíveis para Matrícula em Turma:')
+    for student in sorted(students, key=lambda x: x['Nome']):
+        if 'Turma' not in student:
+            print (' - '.join([f'{key}: {student[key]}' for key in keys_to_display if key in student]))
+
+def consult_students_of_cohort():
+    keys_to_display = ('Nome', 'Código')
+    print_cohorts(keys_to_display) #Mostrará todas as Turmas e seus Códigos
+    completed = False
+    while not completed:
+        user_cohort_code = input('\nInsira o Código da Turma para consultar os seus Alunos: ')
+        if exists_cohort_with_this_code(user_cohort_code, cohorts):
+            if cohort_have_students(user_cohort_code, cohorts):
+                print(f'\nEstes são os alunos da Turma {cohort_name_using_code(user_cohort_code, cohorts)}:')
+                print_students_of_cohort_using_code(user_cohort_code, cohorts)
+            else:
+                print(f'\nA Turma {cohort_name_using_code(user_cohort_code, cohorts)} não possui Alunos Matriculados.')
+            completed = True
+        else:
+            print('\nNão existe Turma com o Código inserido. Verifique e tente novamente.')
