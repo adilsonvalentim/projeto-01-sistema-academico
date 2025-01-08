@@ -1,8 +1,7 @@
 from random import choice
 from faker import Faker
-from g_util import OperationCancelled, calc_age, disc_name_using_code, check_phone, teacher_of_disc_using_disc_code, check_email, exists_disc_with_this_code, disc_have_teacher
-from d_disciplines import print_disciplines, disciplines
 fake = Faker('pt_BR')
+from g_util import calc_age, disc_name_using_code, check_phone, teacher_of_disc_using_disc_code, check_email, exists_disc_with_this_code, disc_have_teacher
 
 teachers = []
 
@@ -19,7 +18,7 @@ def registering_teachers():
     phone = rec_phone()
     email = rec_email()
     id = create_teacher_id()
-    teachers.append = create_teacher_dict(name, id, birthday, gender, adress, phone, email)
+    teachers.append(create_teacher_dict(name, id, birthday, gender, adress, phone, email))
 
 def rec_name():
     """rec_name: Receber o Nome do Professor.
@@ -50,10 +49,11 @@ def rec_birthday():
             birthday = input('\nUsando o formato DD/MM/AAAA, insira a Data de Nascimento do professor: ')
             age = calc_age(birthday)
             if not 20 <= age <= 80:
-                raise ValueError('|||||||||O professor não pode ter menos de 20, nem mais de 80 anos. Verifique a Data de Nascimento.')
+                print('Erro! O professor não pode ter menos de 20, nem mais de 80 anos. Verifique a Data de Nascimento.')
+                continue
+            return birthday
         except ValueError as e:
             print(f'\nErro! {e}')
-        return birthday
 
 def rec_gender():
     """rec_gender: Receber o Sexo do Professor.
@@ -150,14 +150,22 @@ def print_teachers(keys_to_display):
         print (' - '.join([f'{key}: {teacher[key]}' for key in keys_to_display if key in teacher]))
 
 def print_teachers_with_workload(keys_to_display):
-    """print_teachers_with_workload: Exibe todos os Professores, suas Matrículas e suas Horas-Aula.
+    """print_teachers_with_workload: Exibe todos os Professores, seus items selecionados
+                                        via argumento e sua Carga Horária disponível.
 
-    Tem o objetivo de mostrar todos os Professores, suas Matrículas e Suas Horas-Aula em ordem alfabética, quando for chamada.
+    Tem o objetivo de mostrar todos os Professores, seus items selecionados via argumento
+    e sua Carga Horária disponível, em ordem alfabética, quando for chamada.
     """
     for teacher in sorted(teachers, key=lambda x: x['Nome']):
         print (' - '.join([f'{key}: {teacher[key]}' for key in keys_to_display if key in teacher]) + f' - Carga Horária disponível: {600 - (sum(disc["Carga Horária"] for disc in teacher["Disciplinas"]))}') 
 
 def consult_teacher_of_disc():
+    """consult_teacher_of_disc: Consulta o Professor de uma Disciplina selecionada.
+
+    Recebe, Calcula, Exibe e Executa funções responsáveis por receber,
+    calcular e exibir o Professor responsável pela Disciplina selecionada.
+    """
+    from d_disciplines import print_disciplines, disciplines
     keys_to_display = ('Nome', 'Código')
     print_disciplines(keys_to_display) #Mostrará todas as Disciplinas e seus códigos
     completed = False
@@ -173,6 +181,14 @@ def consult_teacher_of_disc():
             print('\nNão existe Disciplina com o Código inserido. Verifique e tente novamente.')
 
 def print_discs_of_teacher_using_id(teacher_id, teachers_list):
+    """print_discs_of_teacher_using_id: Exibe as Disciplinas de um Professor usando a Matrícula dele.
+
+    Exibe as Disciplinas de um Professor usando a Matrícula dele como argumento.
+
+    Args:
+        teacher_id str: Matrícula do Professor consultado.
+        teachers_list list[dict]: Lista de Dicionários de Professores.
+    """
     discs = next((teacher['Disciplinas'] for teacher in teachers_list if teacher['Matrícula'] == teacher_id), None)
     for disc in sorted(discs, key=lambda x: x['Nome']):
         print (f'{disc["Nome"]}')

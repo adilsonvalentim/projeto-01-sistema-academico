@@ -1,9 +1,9 @@
 from random import choice
 from faker import Faker
 fake = Faker('pt_BR')
-from e_teachers import teachers, print_teachers_with_workload, print_teachers, print_discs_of_teacher_using_id
-from g_util import OperationCancelled, id_verifier_index, cohort_have_disc, cohort_name_using_code, exists_cohort_with_this_code, teacher_name_using_id, teacher_have_disc, exists_teacher_with_this_id, teacher_available_workload, cohort_available_workload, code_verifier_index
 from c_cohorts import print_cohorts_with_workload, print_cohorts, print_discs_of_cohort_using_code, cohorts
+from e_teachers import teachers, print_teachers_with_workload, print_teachers, print_discs_of_teacher_using_id
+from g_util import id_verifier_index, cohort_have_disc, cohort_name_using_code, exists_cohort_with_this_code, teacher_name_using_id, teacher_have_disc, exists_teacher_with_this_id, teacher_available_workload, cohort_available_workload, code_verifier_index
 
 disciplines = []
 
@@ -73,8 +73,8 @@ def ask_solution(name):
     """
     while True:
         user_solution = input(
-            f'\nJá existe uma Disciplina cadastrada com o Nome: "{name}"
-            \nInsira "C" para corrigir o Nome da Disciplina a ser cadastrada, ou "S" para Sobrescrevê-la: ').lower()
+            f'\nJá existe uma Disciplina cadastrada com o Nome: "{name}"'
+            '\nInsira "C" para corrigir o Nome da Disciplina a ser cadastrada, ou "S" para Sobrescrevê-la: ').lower()
         if user_solution in ('c', 's'):
             return user_solution
         else:
@@ -163,7 +163,7 @@ def print_disciplines_available_to_cohort(keys_to_display):
         if 'Turma' not in discipline:
             print (' - '.join([f'{key}: {discipline[key]}' for key in keys_to_display if key in discipline]))
 
-def print_disciplines(keys_to_display):
+'''def print_disciplines(keys_to_display):
     """print_disciplines: Exibe todas as Disciplinas e os itens selecionados via argumento.
 
     Tem o objetivo de mostrar todas as Disciplinas e seus itens selecionados
@@ -174,16 +174,19 @@ def print_disciplines(keys_to_display):
     """
     print('\nEstas são as Disciplinas cadastradas:')
     for discipline in sorted(disciplines, key=lambda x: x['Nome']):
-        print (' - '.join([f'{key}: {discipline[key]}' for key in keys_to_display if key in discipline]))
+        print (' - '.join([f'{key}: {discipline[key]}' for key in keys_to_display if key in discipline]))'''
 
 def disciplines_on_teacher():
-    """disciplines_on_teacher: Alocar Disciplinas a Professores.
+    """disciplines_on_teacher: Alocar Disciplinas a Professor.
 
-    Aloca as Disciplinas ao professor e o Profesor às Disciplinas.
+    Compara, Calcula e Executa funções responsáveis por exibir, receber,
+    calcular, comparar e alocar Disciplinas ainda sem Professor em um
+    Professor com Carga Horária disponível, registrando em ambos a sua associação.
 
     Raises:
-        ValueError: Garantidores de Fluxo
-        OperationCancelled: Retorno ao MENU PRINCIPAL
+        ValueError: Garantem o Fluxo, informando problemas nas inserções
+                    do usuário e retornando em locais adequados para que
+                    usuário possa realizar nova inserção.
     """
     keys_to_display = ('Nome', 'Matrícula')
     print('\nEstes são os Professores cadastrados:')
@@ -204,7 +207,7 @@ def disciplines_on_teacher():
             disc_selected = input(f'\nO Professor(a) {teachers[t_index]['Nome']} possui {available_workload} horas disponíveis.\n'
                                 'Insira o Código da Disciplina a ser alocada, ou "menu" para voltar ao MENU PRINCIPAL: ')
             if disc_selected == 'menu':
-                raise OperationCancelled
+                return
             d_index = code_verifier_index(disc_selected, disciplines)
             if disciplines[d_index]['Carga Horária'] > available_workload:
                 while True:
@@ -213,7 +216,7 @@ def disciplines_on_teacher():
                     if decision == 's':
                         raise ValueError(f'{print_disciplines_available_to_teacher(keys_to_display)}')
                     if decision == 'menu':
-                        raise OperationCancelled
+                        return
                     else:
                         print('\nInserção inválida! Insira "s" ou "menu".')
             else:
@@ -226,23 +229,26 @@ def disciplines_on_teacher():
                         if keep_adding == 's':
                             raise ValueError(f'{print_disciplines_available_to_teacher(keys_to_display)}')
                         if keep_adding == 'menu':
-                            raise OperationCancelled
+                            return
                         else:
                             print('\nInserção inválida! Insira "s" ou "menu"')
                 else:
                     print('\nNão existem mais Disciplinas disponíveis para serem alocadas. Voltando ao MENU PRINCIPAL.')
-                    raise OperationCancelled
+                    return
         except ValueError as e:
             print(f'{e}')
-            
-def disciplines_on_cohort():
-    """disciplines_on_cohorts: Alocar Disciplinas a Turmas.
 
-    Aloca as Disciplinas à Turma.
+def disciplines_on_cohort():
+    """disciplines_on_cohort: Alocar Disciplinas a Turma.
+
+    Compara, Calcula e Executa funções responsáveis por exibir, receber,
+    calcular, comparar e alocar Disciplinas ainda sem Turma em uma
+    Turma com Carga Horária disponível, registrando em ambos a sua associação.
 
     Raises:
-        ValueError: Garantidores de Fluxo
-        OperationCancelled: Retorno ao MENU PRINCIPAL
+        ValueError: Garantem o Fluxo, informando problemas nas inserções
+                    do usuário e retornando em locais adequados para que
+                    usuário possa realizar nova inserção.
     """
     keys_to_display = ('Nome', 'Código')
     print('\nEstas são as Turmas cadastradas:')
@@ -251,7 +257,7 @@ def disciplines_on_cohort():
         try:
             code_selected = input('\nInsira o Código da Turma que deseja alocar Disciplinas: ')
             c_index = code_verifier_index(code_selected, cohorts)
-            print(f'\nTurma {cohorts[c_index]['Nome']} selecionada.') #Turma selecionada
+            print(f'\nTurma {cohorts[c_index]['Nome']} selecionada.')
             break
         except ValueError as e:
             print(f'\n{e}')
@@ -263,7 +269,7 @@ def disciplines_on_cohort():
             disc_selected = input(f'\nA Turma {cohorts[c_index]['Nome']} possui {available_workload} horas disponíveis.\n'
                                 'Insira o Código da Disciplina a ser alocada, ou "menu" para voltar ao MENU PRINCIPAL: ')
             if disc_selected == 'menu':
-                raise OperationCancelled
+                return
             d_index = code_verifier_index(disc_selected, disciplines)
             if disciplines[d_index]['Carga Horária'] > available_workload:
                 while True:
@@ -272,7 +278,7 @@ def disciplines_on_cohort():
                     if decision == 's':
                         raise ValueError(f'{print_disciplines_available_to_cohort(keys_to_display)}')
                     if decision == 'menu':
-                        raise OperationCancelled
+                        return
                     else:
                         print('\nInserção inválida! Insira "s" ou "menu".')
             else:
@@ -285,18 +291,23 @@ def disciplines_on_cohort():
                         if keep_adding == 's':
                             raise ValueError(f'{print_disciplines_available_to_cohort(keys_to_display)}')
                         if keep_adding == 'menu':
-                            raise OperationCancelled
+                            return
                         else:
                             print('\nInserção inválida! Insira "s" ou "menu"')
                 else:
                     print('\nNão existem mais Disciplinas disponíveis para serem alocadas. Voltando ao MENU PRINCIPAL.')
-                    raise OperationCancelled
+                    return
         except ValueError as e:
             print(f'{e}')
 
 def consult_discs_of_teacher():
+    """consult_discs_of_teacher: Exibe as Disciplinas do Professor selecionado.
+
+    Recebe, Calcula, Exibe e Executa funções responsáveis por receber,
+    calcular e exibir as Disciplinas alocadas no Professor selecionado.
+    """
     keys_to_display = ('Nome', 'Matrícula')
-    print_teachers(keys_to_display) #Mostrará todos os Professores e Suas Matrículas
+    print_teachers(keys_to_display)
     completed = False
     while not completed:
         user_teacher_id = input('\nInsira a Matrícula do Professor para consultar as suas Disciplinas: ')
@@ -311,8 +322,13 @@ def consult_discs_of_teacher():
             print('\nNão existe Professor com a Matrícula Inserida. Verifique e tente novamente.')
 
 def consult_discs_of_cohort():
+    """consult_discs_of_cohort: Exibe as Disciplinas da Turma selecionada.
+
+    Recebe, Calcula, Exibe e Executa funções responsáveis por receber,
+    calcular e exibir as Disciplinas alocadas na Turma selecionada.
+    """
     keys_to_display = ('Nome', 'Código')
-    print_cohorts(keys_to_display) #Mostrará todas as Turmas e seus Códigos
+    print_cohorts(keys_to_display)
     completed = False
     while not completed:
         user_cohort_code = input('\nInsira o Código da Turma para consultar as suas Disciplinas: ')

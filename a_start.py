@@ -1,26 +1,45 @@
-from faker import Faker
-from random import choice
 from b_courses import registering_courses, courses
 from c_cohorts import registering_cohorts, students_on_cohort, cohorts
-from d_disciplines import registering_disciplines, disciplines_on_teacher, consult_discs_of_teacher, disciplines_on_cohort, disciplines
+from d_disciplines import consult_discs_of_cohort, registering_disciplines, disciplines_on_teacher, consult_discs_of_teacher, disciplines_on_cohort, disciplines
 from e_teachers import registering_teachers, consult_teacher_of_disc, teachers
-from f_students import registering_students, students
-from g_util import OperationCancelled
+from f_students import consult_students_of_cohort, registering_students, students
 
 def title():
+        """title: Título do Programa.
+
+        Exibe o Título do Programa.
+        """
         print('\n* * * * * SISTEMA ACADÊMICO * * * * *')
-        
+
 def ask_username():
+        """ask_username: Recebe o nome do Usuário.
+
+        Pergunta e recebe o nome do Usuário.
+
+        Returns:
+                username str: Nome do Usuário.
+        """
         username = input('\nPor favor usuário, insira o seu nome: ')
         return username
 
 def introduction(username):
+        """introduction: Apresenta o programa.
+
+        Apresenta o programa e suas funcionalidades.
+
+        Args:
+                username str: Nome do usuário.
+        """
         print(f'\nOlá {username}, este programa é um Sistema Acadêmico. Nele, você poderá cadastrar Cursos, Turmas, Disciplinas,\n'
                 'Professores e Alunos. Também poderá alocar Disciplinas aos Professores, Disciplinas às Turmas e matricular Alunos em Turmas.\n'
                 'Por fim, poderá consultar Professores por Disciplinas, Disciplinas por Professores, Alunos por Turmas, Disciplinas por Turmas.\n'
                 'Para realizar Cadastros, Alocações, Matrículas e Consultas, você deverá inserir o número correspondente no MENU PRINCIPAL.')
-        
+
 def main_menu():
+        """main_menu: Menu Principal.
+
+        Exibe todas as opções de funcionalidades e seus índices.
+        """
         print('\n* * * MENU PRINCIPAL * * *\n'
                 '1 - Cadastrar Curso\n'#ok
                 '2 - Cadastrar Turma\n'#ok
@@ -37,11 +56,26 @@ def main_menu():
                 'sair - Encerra o Programa')
 
 def choose_option():
+        """choose_option: Recebe o índice da opção do usuário.
+
+        Pergunta e recebe o índice da opção escolhida do usuário.
+
+        Returns:
+                option str: Índice da Opção.
+        """
         option = 0
         option = input('\nPor favor, insira o índice da função que deseja executar: ').lower()
         return option
 
 def option_executor():
+        """option_executor: Executor da opção escolhida.
+
+        Executa a opção escolhida pelo usuário.
+
+        Returns:
+                True ou False bool: True volta ao MENU PRINCIPAL após executar a função escolhida,
+                                        False leva ao fim do programa.
+        """
         keep_working_options = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12')
         while True:
                 option = choose_option()
@@ -86,7 +120,7 @@ def option_executor():
                                         print('\nErro! Não há Turmas cadastradas.')
                                 elif not students:
                                         print('\nErro! Não há Alunos cadastrados.')
-                                elif any(len(cohort['Alunos'] < 40 for cohort in cohorts)):
+                                elif any(len(cohort['Alunos']) < 40 for cohort in cohorts):
                                         if any('Turma' not in student for student in students):
                                                 students_on_cohort()
                                         else:
@@ -113,37 +147,49 @@ def option_executor():
                                 elif not teachers:
                                         print('\nErro! Não há Professores cadastrados.')
                                 else:
-                                        consult_discs_of_teacher()
+                                        consult_students_of_cohort()
                         if option == '12': #Consulta DIsciplinas da Turma
                                 if not disciplines:
                                         print('\nErro! Não há Disciplinas cadastradas.')
                                 elif not cohorts:
                                         print('\nErro! Não há Turmas cadastradas.')
                                 else:
-                                        consult_discs_of_teacher()
+                                        consult_discs_of_cohort()
                         return True
                 else:
                         print('\nOpção inválida. Tente novamente.')
 
 def main_menu_is_comming():
+        """main_menu_is_comming: Pausa antes do Menu Principal
+
+        Pausa para usuário poder ler prints finais das funções executadas.
+        """
         input('\nVoltando ao MENU PRINCIPAL. Tecle ENTER para prosseguir.')
-        
+
 def the_end():
+        """the_end: Fim do programa.
+
+        Comunica encerramento do programa.
+        """
         print('\nSistema Acadêmico encerrado.')
-        
+
 def credits():
+        """credits: Créditos do programa.
+
+        Apresenta o responsável pela criação do programa.
+        """
         print('\nCréditos: Adilson Valentim - Estudante 1º Período de TADS - IFMS Câmpus Três Lagoas - 2024')
 
-title()
-username = ask_username()
-introduction(username)
+title() #Apresenta o título
+username = ask_username() #Recebe o nome do usuário
+introduction(username) #Apresenta as funcionalidades do Programa
 running = True
-while running:
+while running: #Laço que executa o 'Coração' do Programa
         main_menu() # Mostra as Opções
-        running = option_executor() # Roda a Opção selecionada e Recebe se continua ou não o programa
-        if running == True:
+        running = option_executor() # Roda a Opção selecionada e Recebe se continua ou não o Programa
+        if running == True: #Continua o Programa
                 main_menu_is_comming() # Pausa antes de exibir o MENU PRINCIPAL
-        else:
+        else: #Encerra o Programa
                 the_end() #Fim do Programa
                 credits() #Créditos
 

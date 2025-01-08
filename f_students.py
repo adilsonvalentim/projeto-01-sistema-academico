@@ -1,8 +1,7 @@
 from random import choice
 from faker import Faker
-from g_util import OperationCancelled, calc_age, cohort_name_using_code, check_phone, check_email, exists_cohort_with_this_code, cohort_have_students
-from c_cohorts import print_cohorts, print_students_of_cohort_using_code, cohorts
 fake = Faker('pt_BR')
+from g_util import calc_age, cohort_name_using_code, check_phone, check_email, exists_cohort_with_this_code, cohort_have_students
 
 students = []
 
@@ -19,7 +18,7 @@ def registering_students():
     phone = rec_phone()
     email = rec_email()
     id = create_student_id()
-    students.append = create_student_dict(name, id, birthday, gender, adress, phone, email)
+    students.append(create_student_dict(name, id, birthday, gender, adress, phone, email))
 
 def rec_name():
     """rec_name: Receber o Nome do Aluno.
@@ -49,11 +48,12 @@ def rec_birthday():
         try:
             birthday = input('\nUsando o formato DD/MM/AAAA, insira a Data de Nascimento do aluno: ')
             age = calc_age(birthday)
-            if not 18 <= age:
-                raise ValueError('|||||||||O aluno não pode ter menos de 18 anos. Verifique a Data de Nascimento.')
+            if age < 18:
+                print('Erro! O aluno não pode ter menos de 18 anos. Verifique a Data de Nascimento.')
+                continue
+            return birthday
         except ValueError as e:
             print(f'\nErro! {e}')
-        return birthday
 
 def rec_gender():
     """rec_gender: Receber o Sexo do Aluno.
@@ -140,17 +140,36 @@ def create_student_dict(name, id, birthday, gender, adress, phone, email):
     """
     return {'Nome': name, 'Matrícula': id, 'Data de Nascimento': birthday, 'Sexo': gender, 'Endereço': adress, 'Telefone': phone, 'E-mail': email}
 
-def print_students(keys_to_display):
+'''def print_students(keys_to_display):
+    """print_teachers: Exibe todos os Alunos e seus items selecionados via argumento.
+
+    Mostrar todos os Alunos em ordem alfabética e seus items selecionados via argumento.
+    """
     for student in sorted(students, key=lambda x: x['Nome']):
-        print (' - '.join([f'{key}: {student[key]}' for key in keys_to_display if key in student]))
-        
+        print (' - '.join([f'{key}: {student[key]}' for key in keys_to_display if key in student]))'''
+
 def print_students_wo_cohort(keys_to_display):
+    """print_students_wo_cohort: Exibe todos os Alunos disponíveis para matrícula em Turmas
+                                    e seus items selecionados, via argumento.
+
+    Tem o objetivo de mostrar todos os Alunos disponíveis para matrícula em Turmas 
+    e seus itens selecionados via argumento, em ordem alfabética, quando for chamada.
+
+    Args:
+        keys_to_display tuple: Tupla com as chaves, cujos items devem ser impressos.
+    """
     print('\nEsses são os Estudantes disponíveis para Matrícula em Turma:')
     for student in sorted(students, key=lambda x: x['Nome']):
         if 'Turma' not in student:
             print (' - '.join([f'{key}: {student[key]}' for key in keys_to_display if key in student]))
 
 def consult_students_of_cohort():
+    """consult_students_of_cohort: Exibe os Alunos matrículados na Turma selecionada.
+
+    Recebe, Calcula, Exibe e Executa funções responsáveis por receber,
+    calcular e exibir os Alunos matrículados na Turma selecionada.
+    """
+    from c_cohorts import print_cohorts, print_students_of_cohort_using_code, cohorts
     keys_to_display = ('Nome', 'Código')
     print_cohorts(keys_to_display) #Mostrará todas as Turmas e seus Códigos
     completed = False
